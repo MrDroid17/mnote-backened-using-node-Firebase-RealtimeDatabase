@@ -4,8 +4,6 @@ var firebase = require("firebase-admin");
 var firebaseServiceAccount = require("./service-key.json");
 
 const app = express();
-//const router = express.Router();
-app.use(bodyParser.json())
 
 firebase.initializeApp({
     credential: firebase.credential.cert(firebaseServiceAccount),
@@ -67,7 +65,6 @@ app.delete('/api/note/:note_push_id', (req, res) => {
 
 // api for getting all notes
 app.get('/api/note/all', (req, res) => {
-
     let notes_array = []
     var query = ref.orderByKey();
     query.once("value")
@@ -88,17 +85,8 @@ app.get('/api/note/all', (req, res) => {
 });
 
 
-//api  for edit data
-
 const port = 4000;
 
 app.listen(port, () => {
     console.log('Server started at port ' + port);
 });
-
-/* var note_id = ref.push().key;
-var notesRef = ref.child(note_id);
-notesRef.set({
-    Note: 'take some banana',
-    full_name: "sobhit"
-}); */
