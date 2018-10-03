@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Note = require('./model/notes');
 var firebase = require("firebase-admin");
 var firebaseServiceAccount = require("./service-key.json");
 
@@ -42,9 +41,6 @@ app.post('/api/note/add', (req, res) => {
 // api for updating note
 app.put('/api/note/:note_push_id', (req, res) => {
 
-    // var note_id = ref.push().key;
-    // var notesRef = ref.child(note_id);
-
     note_uid = req.params.note_push_id;
     noteObj = req.body;
 
@@ -59,13 +55,11 @@ app.put('/api/note/:note_push_id', (req, res) => {
 // api for delete note
 app.delete('/api/note/:note_push_id', (req, res) => {
 
-    var note_id = ref.push().key;
-    var notesRef = ref.child(note_id);
-    noteObj = req.body
+    note_uid = req.params.note_push_id;
 
-    notesRef.set(noteObj).then(note => {
+    ref.child(note_uid).remove().then(note => {
         console.info(note)
-        res.json({ success: true, message: 'Note delete.' });
+        res.json({ success: true, message: 'Note Deleted.' });
     }).catch(error => {
         res.json({ success: false, message: error.message });
     })
@@ -74,17 +68,23 @@ app.delete('/api/note/:note_push_id', (req, res) => {
 // api for getting all notes
 app.get('/api/note/all', (req, res) => {
 
-    var note_id = ref.push().key;
-    var notesRef = ref.child(note_id);
+    let notes_array = []
+    var query = ref.orderByKey();
+    query.once("value")
+        .then(function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+                // key will be "ada" the first time and "alan" the second time
+                var key = childSnapshot.key;
+                // childData will be the actual contents of the child
+                var childData = childSnapshot.val();
+                notes_array.push(childData)
+            });
+            console.info(notes_array)
+            res.json(notes_array);
 
-    noteObj = req.body;
-
-    notesRef.set(noteObj).then(note => {
-        console.info(note)
-        res.json({ success: true, message: 'All note found.' });
-    }).catch(error => {
-        res.json({ success: false, message: error.message });
-    })
+        }).catch(error => {
+            res.json({ success: false, message: error.message });
+        });
 });
 
 
