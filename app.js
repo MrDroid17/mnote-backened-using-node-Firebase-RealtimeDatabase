@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Note = require('./model/notes')
+const Note = require('./model/notes');
 var firebase = require("firebase-admin");
 var firebaseServiceAccount = require("./service-key.json");
 
@@ -37,6 +37,25 @@ app.post('/api/note/add', (req, res) => {
     })
 });
 
+
+
+// api for updating note
+app.put('/api/note/:note_push_id', (req, res) => {
+
+    // var note_id = ref.push().key;
+    // var notesRef = ref.child(note_id);
+
+    note_uid = req.params.note_push_id;
+    noteObj = req.body;
+
+    ref.child(note_uid).update(noteObj).then(note => {
+        console.info(note)
+        res.json({ success: true, message: 'Note Updated.' });
+    }).catch(error => {
+        res.json({ success: false, message: error.message });
+    })
+});
+
 // api for delete note
 app.delete('/api/note/:note_push_id', (req, res) => {
 
@@ -47,23 +66,6 @@ app.delete('/api/note/:note_push_id', (req, res) => {
     notesRef.set(noteObj).then(note => {
         console.info(note)
         res.json({ success: true, message: 'Note delete.' });
-    }).catch(error => {
-        res.json({ success: false, message: error.message });
-    })
-});
-
-// api for updating note
-app.put('/api/note/:note_push_id', (req, res) => {
-
-    var note_id = ref.push().key;
-    var notesRef = ref.child(note_id);
-
-    note_uid = req.params.note_push_id;
-    noteObj = req.body;
-
-    notesRef.ref('Notes/' + note_uid).update(noteObj).then(note => {
-        console.info(note)
-        res.json({ success: true, message: 'Note Updating.' });
     }).catch(error => {
         res.json({ success: false, message: error.message });
     })
